@@ -34,6 +34,7 @@ class Engine:
                 self.get_key()
                 self.draw_fruit()
                 self.check_collisions()
+                self.__snake.check_new_highscore()
             for event in pygame.event.get():
                 if event.type == QUIT:
                     self.__run = False
@@ -72,7 +73,9 @@ class Engine:
     def playing_display(self):
         bg = pygame.draw.rect(self.__root, (0,0,0), pygame.Rect(0,0,WIDTH,MARGIN))
         score_label = HELV30.render(f'Score: {self.__snake.score}', False, (255,255,255))
+        highscole_label = HELV30.render(f'Highscore: {self.__snake.highscore}', False, (255,255,255))
         self.__root.blit(score_label, (5,5))
+        self.__root.blit(highscole_label, (WIDTH-(highscole_label.get_rect().width)-5,5))
 
     def generate_fruit(self):
         test = True
@@ -109,15 +112,15 @@ class Engine:
         bg = pygame.draw.rect(self.__root, (0,0,0), pygame.Rect(0,0,WIDTH,HEIGHT))
         lose_info = HELV30.render('YOU LOSE!', False, (255,255,255))
         lose_rect = lose_info.get_rect(center=(WIDTH/2, (HEIGHT/2)-50))
-        self.__root.blit(lose_info, lose_rect)
         play_again = HELV30.render('Play again?',False, (255,255,255))
         play_again_rect = play_again.get_rect(center=(WIDTH/2, (HEIGHT/2)))
-        self.__root.blit(play_again, play_again_rect)
         yes = HELV30.render('YES', False, (255,255,255))
         yes_rect = yes.get_rect(center=((WIDTH/2)-50, (HEIGHT/2)+60))
-        self.__root.blit(yes, yes_rect)
         no = HELV30.render('NO', False, (255,255,255))
         no_rect = no.get_rect(center=((WIDTH/2)+50, (HEIGHT/2)+60))
+        self.__root.blit(lose_info, lose_rect)
+        self.__root.blit(play_again, play_again_rect)
+        self.__root.blit(yes, yes_rect)
         self.__root.blit(no, no_rect)
         if no_rect.collidepoint(self.__mouse_pos):
             self.__run = False
@@ -130,9 +133,9 @@ class Engine:
     def reset(self):
         self.__snake.score = 0
         self.__snake.snake_positions = [(60, 60),(40,60),(20,60)]
-        self.__snake.body.clear()
         self.__snake.body = [DEFAULT_HEAD, DEFAULT_BP1, DEFAULT_BP2]
         self.generate_fruit()
+        self.__mouse_pos = (0,0)
         self.__end = False
 
 
@@ -144,6 +147,7 @@ class Snake:
         self.__snake_positions = positions
         self.__direction = 'RIGHT'
         self.__score = 0
+        self.__highscore = 0
     
     @property
     def body(self):
@@ -177,6 +181,10 @@ class Snake:
     def score(self, new_score):
         self.__score = new_score
 
+    @property
+    def highscore(self):
+        return self.__highscore
+
     def new_body(self):
         new_body_x, new_body_y = self.__snake_positions[-1]
         new_body = Body(new_body_x, new_body_y)
@@ -207,6 +215,10 @@ class Snake:
             segment.x = position[0]
             segment.y = position[1]
             segment.update_hitbox()
+
+    def check_new_highscore(self):
+        if self.__score > self.__highscore:
+            self.__highscore = self.__score
 
 
 class Body:

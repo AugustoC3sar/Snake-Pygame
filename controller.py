@@ -35,10 +35,6 @@ class Controller:
             
             pygame.display.update()
 
-    def draw_snake(self):
-        for segment in self.__snake.body:
-            pygame.draw.rect(self.__root, segment.color, segment.hitbox)
-
     def keyboard_input(self):
         keys = pygame.key.get_pressed()
         if not self._paused:
